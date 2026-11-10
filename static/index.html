@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trade Flow Report Generator</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 3rem auto; padding: 0 1rem; }
+    button { padding: .6rem 1.2rem; margin-top: 1rem; }
+    a { display: block; margin-top: .5rem; }
+  </style>
+</head>
+<body>
+  <h1>Trade Flow Report Generator</h1>
+  <p>Upload your .xlsx or .csv files.</p>
+  <input type="file" id="files" multiple accept=".xlsx,.csv">
+  <br><button id="go">Generate Report</button>
+  <p id="status"></p>
+  <div id="links"></div>
+  <script>
+    document.getElementById("go").onclick = async () => {
+      const files = document.getElementById("files").files;
+      const status = document.getElementById("status");
+      const links = document.getElementById("links");
+      links.innerHTML = "";
+      if (!files.length) { status.textContent = "Choose files first."; return; }
+      const fd = new FormData();
+      for (const f of files) fd.append("files", f);
+      status.textContent = "Generating...";
+      const res = await fetch("/generate", { method: "POST", body: fd });
+      if (!res.ok) { status.textContent = "Error: " + (await res.json()).detail; return; }
+      const data = await res.json();
+      status.textContent = "Done.";
+      links.innerHTML = `<a href="${data.docx}">Download Word report</a>
+                         <a href="${data.xlsx}">Download Excel tables</a>`;
+    };
+  </script>
+</body>
+</html>

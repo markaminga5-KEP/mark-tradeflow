@@ -1,39 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Trade Flow Report Generator</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 3rem auto; padding: 0 1rem; }
-    button { padding: .6rem 1.2rem; margin-top: 1rem; }
-    a { display: block; margin-top: .5rem; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trade Flow Report Generator</title>
+<style>
+  :root {
+    --brand: #0b5d3b;
+    --brand-dark: #08452c;
+    --accent: #c8102e;
+    --bg: #f4f6f5;
+    --card: #ffffff;
+    --text: #1d2b25;
+    --muted: #5d6b64;
+    --line: #dbe2de;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  .letterhead { background: #fff; border-bottom: 1px solid var(--line); text-align: center; padding: 10px; }
+  .letterhead img { max-width: 100%; max-height: 90px; }
+  .hero { background: var(--brand); color: #fff; padding: 40px 20px; text-align: center; }
+  .hero small { opacity: .85; letter-spacing: .04em; }
+  .hero h1 { margin: 8px 0 10px; font-size: 2rem; }
+  .hero p { max-width: 640px; margin: 0 auto; opacity: .92; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+  .steps { display: flex; gap: 12px; justify-content: center; margin: -22px auto 24px; flex-wrap: wrap; }
+  .step { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: .9rem; box-shadow: 0 2px 6px rgba(0,0,0,.05); }
+  .step b { color: var(--brand); margin-right: 6px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 4px; font-size: 1.15rem; }
+  .tag { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .types { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+  .type { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: .15s; }
+  .type:hover { border-color: var(--brand); }
+  .type input { display: none; }
+  .type strong { display: block; }
+  .type span { font-size: .85rem; color: var(--muted); }
+  .type.active { border-color: var(--brand); background: #eaf4ef; }
+  .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 34px 16px; text-align: center; cursor: pointer; margin-top: 14px; transition: .15s; }
+  .drop.over, .drop:hover { border-color: var(--brand); background: #eaf4ef; }
+  .drop p { margin: 4px 0; }
+  .muted { color: var(--muted); font-size: .88rem; }
+  #fileList { margin: 10px 0 0; padding-left: 18px; font-size: .9rem; }
+  label { font-size: .9rem; font-weight: 600; }
+  input[type=number], select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 1rem; margin-left: 8px; }
+  .btn { background: var(--brand); color: #fff; border: 0; border-radius: 10px; padding: 12px 22px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 14px; }
+  .btn:hover { background: var(--brand-dark); }
+  .btn:disabled { opacity: .6; cursor: wait; }
+  .btn.alt { background: #fff; color: var(--brand); border: 1.5px solid var(--brand); margin-right: 8px; text-decoration: none; display: inline-block; }
+  #status { margin-top: 12px; font-weight: 600; }
+  #status.err { color: var(--accent); }
+  #links { margin-top: 10px; }
+  .jobs { list-style: none; margin: 10px 0 0; padding: 0; }
+  .jobs li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .9rem; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 20px; }
+</style>
 </head>
 <body>
+
+<div class="letterhead"><img src="/static/keproba_letterhead.png" alt="" onerror="this.parentElement.style.display='none'"></div>
+
+<div class="hero">
+  <small>Kenya Export Promotion &amp; Branding Agency &middot; Research &amp; Innovation</small>
   <h1>Trade Flow Report Generator</h1>
-  <p>Upload your .xlsx or .csv files.</p>
-  <input type="file" id="files" multiple accept=".xlsx,.csv">
-  <br><button id="go">Generate Report</button>
-  <p id="status"></p>
-  <div id="links"></div>
-  <script>
-    document.getElementById("go").onclick = async () => {
-      const files = document.getElementById("files").files;
-      const status = document.getElementById("status");
-      const links = document.getElementById("links");
-      links.innerHTML = "";
-      if (!files.length) { status.textContent = "Choose files first."; return; }
-      const fd = new FormData();
-      for (const f of files) fd.append("files", f);
-      status.textContent = "Generating...";
-      const res = await fetch("/generate", { method: "POST", body: fd });
-      if (!res.ok) { status.textContent = "Error: " + (await res.json()).detail; return; }
-      const data = await res.json();
-      status.textContent = "Done.";
-      links.innerHTML = `<a href="${data.docx}">Download Word report</a>
-                         <a href="${data.xlsx}">Download Excel tables</a>`;
+  <p>Upload your trade data files and get a formatted Word report and Excel tables back.</p>
+</div>
+
+<main>
+  <div class="steps">
+    <div class="step"><b>01</b>Choose &amp; upload</div>
+    <div class="step"><b>02</b>Generate</div>
+    <div class="step"><b>03</b>Download</div>
+  </div>
+
+  <section class="card">
+    <span class="tag">Step 01</span>
+    <h2>Choose the analysis</h2>
+    <div class="types" id="types">
+      <label class="type active"><input type="radio" name="analysis" value="export_performance" checked><strong>Export Performance</strong><span>Periods vs the same months last year</span></label>
+      <label class="type"><input type="radio" name="analysis" value="trade_brief"><strong>Trade Brief</strong><span>Goods flows and partner markets</span></label>
+      <label class="type"><input type="radio" name="analysis" value="competitor"><strong>Competitor Analysis</strong><span>Rival suppliers in your markets</span></label>
+      <label class="type"><input type="radio" name="analysis" value="product_profile"><strong>Product Profile</strong><span>One HS family, in depth</span></label>
+      <label class="type"><input type="radio" name="analysis" value="services"><strong>Services Brief</strong><span>Service categories and world peers</span></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <span class="tag">Step 02</span>
+    <h2>Upload your files</h2>
+    <div class="drop" id="drop">
+      <p><strong>Drop your files here</strong> or click to browse</p>
+      <p class="muted">.xlsx or .csv</p>
+    </div>
+    <input type="file" id="files" multiple accept=".xlsx,.csv" hidden>
+    <ul id="fileList"></ul>
+  </section>
+
+  <section class="card">
+    <span class="tag">Step 03</span>
+    <h2>Options and generate</h2>
+    <p><label>Top N rows per table <input type="number" id="topn" value="10" min="1" max="100"></label></p>
+    <button class="btn" id="go">Generate Report</button>
+    <div id="status"></div>
+    <div id="links"></div>
+  </section>
+
+  <section class="card">
+    <h2>Recent jobs</h2>
+    <ul class="jobs" id="jobs"><li class="muted">No jobs in this browser yet.</li></ul>
+  </section>
+</main>
+
+<footer>KEPROBA &copy; Research &amp; Innovation &middot; All rights reserved</footer>
+
+<script>
+  const input = document.getElementById("files");
+  const drop = document.getElementById("drop");
+  const list = document.getElementById("fileList");
+  const statusEl = document.getElementById("status");
+  const links = document.getElementById("links");
+  const go = document.getElementById("go");
+
+  document.querySelectorAll(".type input").forEach(r => {
+    r.onchange = () => {
+      document.querySelectorAll(".type").forEach(t => t.classList.remove("active"));
+      r.parentElement.classList.add("active");
     };
-  </script>
+  });
+
+  drop.onclick = () => input.click();
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+  drop.ondragleave = () => drop.classList.remove("over");
+  drop.ondrop = e => {
+    e.preventDefault(); drop.classList.remove("over");
+    input.files = e.dataTransfer.files; showFiles();
+  };
+  input.onchange = showFiles;
+
+  function showFiles() {
+    list.innerHTML = "";
+    for (const f of input.files) {
+      const li = document.createElement("li");
+      li.textContent = f.name;
+      list.appendChild(li);
+    }
+  }
+
+  function loadJobs() {
+    let jobs = [];
+    try { jobs = JSON.parse(localStorage.getItem("jobs") || "[]"); } catch (e) {}
+    const ul = document.getElementById("jobs");
+    if (!jobs.length) return;
+    ul.innerHTML = "";
+    for (const j of jobs) {
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${j.time} &middot; ${j.type}</span><span><a href="${j.docx}">Word</a> &middot; <a href="${j.xlsx}">Excel</a></span>`;
+      ul.appendChild(li);
+    }
+  }
+  function saveJob(job) {
+    try {
+      const jobs = JSON.parse(localStorage.getItem("jobs") || "[]");
+      jobs.unshift(job);
+      localStorage.setItem("jobs", JSON.stringify(jobs.slice(0, 8)));
+    } catch (e) {}
+    loadJobs();
+  }
+  loadJobs();
+
+  go.onclick = async () => {
+    links.innerHTML = ""; statusEl.className = "";
+    if (!input.files.length) { statusEl.className = "err"; statusEl.textContent = "Choose files first."; return; }
+    const fd = new FormData();
+    for (const f of input.files) fd.append("files", f);
+    const type = document.querySelector("input[name=analysis]:checked").value;
+    fd.append("top_n", document.getElementById("topn").value);
+    go.disabled = true; statusEl.textContent = "Generating...";
+    try {
+      const res = await fetch("/generate", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Something went wrong");
+      statusEl.textContent = "Done. Your report is ready.";
+      links.innerHTML = `<a class="btn alt" href="${data.docx}">Download Word Report</a><a class="btn alt" href="${data.xlsx}">Download Excel Tables</a>`;
+      saveJob({ time: new Date().toLocaleString(), type, docx: data.docx, xlsx: data.xlsx });
+    } catch (e) {
+      statusEl.className = "err"; statusEl.textContent = "Error: " + e.message;
+    }
+    go.disabled = false;
+  };
+</script>
 </body>
 </html>

@@ -3,190 +3,273 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Trade Flow Report Generator</title>
+<title>Trade Flow Report Generator | KEPROBA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --brand: #0b5d3b;
-    --brand-dark: #08452c;
-    --accent: #c8102e;
-    --bg: #f4f6f5;
-    --card: #ffffff;
-    --text: #1d2b25;
-    --muted: #5d6b64;
-    --line: #dbe2de;
-    --radius: 12px;
+    --green: #0a8a45;
+    --green-dark: #0b3a26;
+    --green-deep: #062a1b;
+    --red: #b8202f;
+    --pink: #ff7a85;
+    --blue: #1d6fb8;
+    --cream: #f4f0e8;
+    --card: #fffdf8;
+    --text: #12281e;
+    --muted: #5f6d65;
+    --line: #e2ddd0;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
-  .letterhead { background: #fff; border-bottom: 1px solid var(--line); text-align: center; padding: 10px; }
-  .letterhead img { max-width: 100%; max-height: 90px; }
-  .hero { background: var(--brand); color: #fff; padding: 40px 20px; text-align: center; }
-  .hero small { opacity: .85; letter-spacing: .04em; }
-  .hero h1 { margin: 8px 0 10px; font-size: 2rem; }
-  .hero p { max-width: 640px; margin: 0 auto; opacity: .92; }
-  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
-  .steps { display: flex; gap: 12px; justify-content: center; margin: -22px auto 24px; flex-wrap: wrap; }
-  .step { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: .9rem; box-shadow: 0 2px 6px rgba(0,0,0,.05); }
-  .step b { color: var(--brand); margin-right: 6px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; }
-  .card h2 { margin: 0 0 4px; font-size: 1.15rem; }
-  .tag { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-  .types { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
-  .type { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: .15s; }
-  .type:hover { border-color: var(--brand); }
+  body {
+    margin: 0; color: var(--text); line-height: 1.5;
+    font-family: Inter, system-ui, sans-serif;
+    background-color: var(--cream);
+    background-image: radial-gradient(rgba(0,0,0,.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .stripe { height: 6px; background: repeating-linear-gradient(90deg, var(--green) 0 20px, #fff 20px 24px, var(--red) 24px 44px, #fff 44px 48px); }
+  header.top { background: linear-gradient(180deg, var(--green-dark), var(--green-deep)); color: #fff; padding: 14px 16px; }
+  .top-inner { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 22px; flex-wrap: wrap; text-align: left; }
+  .logo-box { background: #fff; border-radius: 8px; padding: 6px 10px; display: flex; align-items: center; min-height: 56px; }
+  .logo-box img { max-height: 50px; display: block; }
+  .top h2 { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 1.7rem; }
+  .top h2 span { color: var(--pink); }
+  .top p { margin: 2px 0 0; font-size: .85rem; opacity: .85; }
+  .icon-circle { width: 56px; height: 56px; border-radius: 50%; background: #fff; border: 3px solid rgba(255,255,255,.4); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .icon-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 28px 16px 60px; }
+  .hero { position: relative; overflow: hidden; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 32px 30px; box-shadow: 0 6px 24px rgba(0,0,0,.05); margin-bottom: 22px; }
+  .hero::after { content: ""; position: absolute; right: -70px; top: -60px; width: 260px; height: 260px; border-radius: 50%; border: 22px solid rgba(10,138,69,.09); box-shadow: 0 0 0 22px rgba(184,32,47,.06); pointer-events: none; }
+  .eyebrow { color: var(--red); font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+  .hero h1 { font-family: Fraunces, Georgia, serif; font-size: 2.6rem; margin: 8px 0 12px; color: var(--green-deep); line-height: 1.1; }
+  .hero p { max-width: 640px; color: var(--muted); margin: 0 0 20px; }
+  .pills { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .pill { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 16px 8px 8px; font-size: .88rem; font-weight: 600; }
+  .pill b { width: 24px; height: 24px; border-radius: 50%; color: #fff; font: 600 .7rem "JetBrains Mono", monospace; display: flex; align-items: center; justify-content: center; }
+  .arrow { color: #b8ad97; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; margin-bottom: 22px; box-shadow: 0 4px 16px rgba(0,0,0,.04); border-top: 3px solid var(--green); }
+  .card.red { border-top-color: var(--red); }
+  .card.blue { border-top-color: var(--blue); }
+  .card-head { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+  .ico { width: 36px; height: 36px; border-radius: 10px; background: #e3f2ea; color: var(--green); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+  .red .ico { background: #fbe4e6; color: var(--red); }
+  .blue .ico { background: #e0edf9; color: var(--blue); }
+  .card-head h3 { margin: 0; font-size: 1.1rem; flex: 1; }
+  .badge { font: 600 .68rem "JetBrains Mono", monospace; letter-spacing: .1em; background: #e9efe9; color: var(--green-dark); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
+  .label { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .note { font-size: .85rem; color: var(--muted); margin: 0 0 12px; }
+
+  .types { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 10px; }
+  .type { position: relative; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; cursor: pointer; transition: .15s; overflow: hidden; }
+  .type:hover { border-color: var(--green); }
   .type input { display: none; }
-  .type strong { display: block; }
-  .type span { font-size: .85rem; color: var(--muted); }
-  .type.active { border-color: var(--brand); background: #eaf4ef; }
-  .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 34px 16px; text-align: center; cursor: pointer; margin-top: 14px; transition: .15s; }
-  .drop.over, .drop:hover { border-color: var(--brand); background: #eaf4ef; }
-  .drop p { margin: 4px 0; }
-  .muted { color: var(--muted); font-size: .88rem; }
-  #fileList { margin: 10px 0 0; padding-left: 18px; font-size: .9rem; }
-  label { font-size: .9rem; font-weight: 600; }
-  input[type=number], select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 1rem; margin-left: 8px; }
-  .btn { background: var(--brand); color: #fff; border: 0; border-radius: 10px; padding: 12px 22px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 14px; }
-  .btn:hover { background: var(--brand-dark); }
-  .btn:disabled { opacity: .6; cursor: wait; }
-  .btn.alt { background: #fff; color: var(--brand); border: 1.5px solid var(--brand); margin-right: 8px; text-decoration: none; display: inline-block; }
-  #status { margin-top: 12px; font-weight: 600; }
-  #status.err { color: var(--accent); }
-  #links { margin-top: 10px; }
-  .jobs { list-style: none; margin: 10px 0 0; padding: 0; }
-  .jobs li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .9rem; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 20px; }
+  .type .t-ico { width: 28px; height: 28px; background: #eef2ee; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; font-size: .9rem; }
+  .type strong { display: block; font-size: .9rem; }
+  .type span { font-size: .78rem; color: var(--muted); }
+  .type.active { background: linear-gradient(135deg, var(--green-dark), var(--green-deep)); border-color: var(--green-deep); color: #fff; }
+  .type.active span { color: rgba(255,255,255,.8); }
+  .type.active .t-ico { background: rgba(255,255,255,.15); }
+  .type.active::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 4px; background: #22c55e; border-radius: 4px 4px 0 0; }
+
+  .drop { border: 2px dashed #c9c2ae; border-radius: 14px; padding: 36px 16px; text-align: center; cursor: pointer; background: linear-gradient(180deg, #f6f7f1, #fff); transition: .15s; }
+  .drop:hover, .drop.over { border-color: var(--green); background: #eef6f0; }
+  .up-circle { width: 46px; height: 46px; border-radius: 50%; background: var(--green); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 10px; }
+  .drop strong { display: block; }
+  .chips { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .chips code { font: 600 .72rem "JetBrains Mono", monospace; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; color: var(--green-dark); }
+  #fileList { margin: 12px 0 0; padding-left: 20px; font-size: .88rem; }
+  .sample { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #f1f0e4; border: 1px dashed #cfc9b0; border-radius: 12px; padding: 12px 14px; margin-top: 16px; }
+  .sample b { font-size: .85rem; }
+
+  select, input[type=number] { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--text); }
+  select { flex: 1; min-width: 200px; }
+  input[type=number] { width: 240px; font-family: "JetBrains Mono", monospace; font-weight: 600; }
+  .btn { font: 600 .9rem Inter, sans-serif; border-radius: 10px; padding: 10px 16px; cursor: pointer; border: 1px solid var(--line); background: #fff; color: var(--text); text-decoration: none; display: inline-block; }
+  .btn:hover { border-color: var(--green); }
+  .btn.primary { background: linear-gradient(180deg, #11804a, var(--green-deep)); color: #fff; border: 0; padding: 13px 22px; box-shadow: 0 4px 10px rgba(6,42,27,.25); }
+  .btn.primary:disabled { opacity: .6; cursor: wait; }
+  .tag { display: inline-block; font: 600 .7rem "JetBrains Mono", monospace; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; background: #fff; color: var(--muted); }
+
+  .console { position: relative; background: linear-gradient(180deg, var(--green-dark), var(--green-deep)); color: #fff; border-radius: 16px; padding: 24px; margin-bottom: 22px; overflow: hidden; }
+  .console::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: repeating-linear-gradient(90deg, var(--green) 0 20px, #fff 20px 24px, var(--red) 24px 44px, #fff 44px 48px); }
+  .console .card-head { border-color: rgba(255,255,255,.15); }
+  .console .ico { background: rgba(255,255,255,.1); color: #4ade80; font-family: "JetBrains Mono", monospace; }
+  .console .badge { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.2); }
+  .dots { display: flex; gap: 6px; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; background: #1f6b46; }
+  .dots i:nth-child(2) { background: #fff; } .dots i:nth-child(3) { background: #22c55e; }
+  #log { background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 16px; min-height: 100px; font: 500 .85rem "JetBrains Mono", monospace; color: #9fb8aa; white-space: pre-wrap; }
+  #log .ok { color: #4ade80; } #log .bad { color: #ff8b95; }
+  #links { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+  #links .btn { background: #fff; }
+
+  .jobs { list-style: none; margin: 0; padding: 0; font-size: .9rem; }
+  .jobs li { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .jobs a { color: var(--green); font-weight: 600; }
+  footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 10px 0 30px; }
+  @media (max-width: 600px) { .hero h1 { font-size: 2rem; } .top h2 { font-size: 1.3rem; } }
 </style>
 </head>
 <body>
 
-<div class="letterhead"><img src="/static/keproba_letterhead.png" alt="" onerror="this.parentElement.style.display='none'"></div>
-
-<div class="hero">
-  <small>Kenya Export Promotion &amp; Branding Agency &middot; Research &amp; Innovation</small>
-  <h1>Trade Flow Report Generator</h1>
-  <p>Upload your trade data files and get a formatted Word report and Excel tables back.</p>
-</div>
+<header class="top">
+  <div class="top-inner">
+    <div class="logo-box"><img src="/static/keproba_letterhead.png" alt="KEPROBA" onerror="this.parentElement.style.display='none'"></div>
+    <div>
+      <h2>Trade Intelligence <span>at Your Fingertips</span></h2>
+      <p>Upload your ITC files &mdash; get a Word report and Excel tables back</p>
+    </div>
+    <div class="icon-circle"><img src="/static/keproba_icon.png" alt="" onerror="this.parentElement.style.display='none'"></div>
+  </div>
+</header>
+<div class="stripe"></div>
 
 <main>
-  <div class="steps">
-    <div class="step"><b>01</b>Choose &amp; upload</div>
-    <div class="step"><b>02</b>Generate</div>
-    <div class="step"><b>03</b>Download</div>
-  </div>
-
-  <section class="card">
-    <span class="tag">Step 01</span>
-    <h2>Choose the analysis</h2>
-    <div class="types" id="types">
-      <label class="type active"><input type="radio" name="analysis" value="export_performance" checked><strong>Export Performance</strong><span>Periods vs the same months last year</span></label>
-      <label class="type"><input type="radio" name="analysis" value="trade_brief"><strong>Trade Brief</strong><span>Goods flows and partner markets</span></label>
-      <label class="type"><input type="radio" name="analysis" value="competitor"><strong>Competitor Analysis</strong><span>Rival suppliers in your markets</span></label>
-      <label class="type"><input type="radio" name="analysis" value="product_profile"><strong>Product Profile</strong><span>One HS family, in depth</span></label>
-      <label class="type"><input type="radio" name="analysis" value="services"><strong>Services Brief</strong><span>Service categories and world peers</span></label>
+  <section class="hero">
+    <div class="eyebrow">Kenya Export Promotion &amp; Branding Agency &middot; Research &amp; Innovation</div>
+    <h1>Trade Flow Report Generator</h1>
+    <p>Six ITC Trade Map downloads in, a formatted Word brief and its Excel tables out &mdash; goods, services, export performance, product profiles and competitor analysis, with every dollar figure cross-checked against the KNBS reference snapshot.</p>
+    <div class="pills">
+      <div class="pill"><b style="background:var(--green)">01</b>Choose &amp; upload</div><span class="arrow">&rarr;</span>
+      <div class="pill"><b style="background:#111">02</b>Generate</div><span class="arrow">&rarr;</span>
+      <div class="pill"><b style="background:var(--red)">03</b>Download &amp; share</div>
     </div>
   </section>
 
   <section class="card">
-    <span class="tag">Step 02</span>
-    <h2>Upload your files</h2>
+    <div class="card-head"><div class="ico">&#9776;</div><h3>Choose the analysis</h3><span class="badge">STEP 01</span></div>
+    <div class="label">Analysis type</div>
+    <div class="types">
+      <label class="type"><input type="radio" name="analysis" value="Export Performance"><div class="t-ico">&#8599;</div><strong>Export Performance</strong><span>KRA periods vs the same months last year</span></label>
+      <label class="type active"><input type="radio" name="analysis" value="Trade Brief" checked><div class="t-ico">&#9635;</div><strong>Trade Brief</strong><span>Goods flows, partner markets and re-exports</span></label>
+      <label class="type"><input type="radio" name="analysis" value="Competitor Analysis"><div class="t-ico">&#8644;</div><strong>Competitor Analysis</strong><span>Rival suppliers in your export markets</span></label>
+      <label class="type"><input type="radio" name="analysis" value="Product Profile"><div class="t-ico">&#9672;</div><strong>Product Profile</strong><span>One HS family, in depth</span></label>
+      <label class="type"><input type="radio" name="analysis" value="Services Brief"><div class="t-ico">&#9650;</div><strong>Services Brief</strong><span>EBOPS categories and world peers</span></label>
+    </div>
+  </section>
+
+  <section class="card red">
+    <div class="card-head"><div class="ico">&#8679;</div><h3>Upload your files</h3><span class="badge">STEP 02</span></div>
+    <p class="note">Upload the <b>six ITC downloads</b> or a <b>.zip</b> &mdash; or the ready-made <b>Table 1&ndash;6 + Figure 1</b> workbook.</p>
     <div class="drop" id="drop">
-      <p><strong>Drop your files here</strong> or click to browse</p>
-      <p class="muted">.xlsx or .csv</p>
+      <div class="up-circle">&#8679;</div>
+      <strong>Drop your ITC downloads here</strong>
+      <div class="note" style="margin:4px 0 0">or click to browse &mdash; six workbooks, a .zip, or the ready-made Table 1&ndash;6 workbook</div>
+      <div class="chips"><code>.xlsx</code><code>.csv</code></div>
     </div>
     <input type="file" id="files" multiple accept=".xlsx,.csv" hidden>
     <ul id="fileList"></ul>
+    <div class="sample">
+      <b>No files handy?</b>
+      <select id="sampleSel"><option>Select a sample dataset...</option></select>
+      <button class="btn" id="loadSample">&#9654; Load sample</button>
+      <button class="btn" id="dlSample">Download files</button>
+    </div>
+  </section>
+
+  <section class="card blue">
+    <div class="card-head"><div class="ico">&#9921;</div><h3>Or fetch open data</h3><span class="badge">OPTIONAL</span></div>
+    <p class="note">Fetch open data instead of uploading ITC files. UNCTADstat builds the Services Brief workbooks; KNBS rebuilds the reference snapshot every report cross-checks against.</p>
+    <div class="label" style="margin-bottom:6px">Data source</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <select id="fetchSel"><option>KNBS reference series</option><option>UNCTADstat services</option></select>
+      <button class="btn" id="fetchBtn">Fetch data</button>
+    </div>
   </section>
 
   <section class="card">
-    <span class="tag">Step 03</span>
-    <h2>Options and generate</h2>
-    <p><label>Top N rows per table <input type="number" id="topn" value="10" min="1" max="100"></label></p>
-    <button class="btn" id="go">Generate Report</button>
-    <div id="status"></div>
+    <div class="card-head"><div class="ico">&#9881;</div><h3>Options and generate</h3><span class="badge">STEP 03</span></div>
+    <div class="label" style="margin-bottom:6px">Top N rows per table</div>
+    <input type="number" id="topn" value="20" min="1" max="100">
+    <p class="note" style="margin-top:6px">Applies to tables 2, 4&ndash;6; exporter tables show 25.</p>
+    <button class="btn primary" id="go">&#9654; Generate Report</button>
+  </section>
+
+  <section class="console">
+    <div class="card-head"><div class="ico">&gt;_</div><h3>Progress and results</h3><div class="dots"><i></i><i></i><i></i></div><span class="badge">LIVE</span></div>
+    <div id="log">No run yet &mdash; upload your files in step 2, then choose Generate Report.</div>
     <div id="links"></div>
   </section>
 
   <section class="card">
-    <h2>Recent jobs</h2>
-    <ul class="jobs" id="jobs"><li class="muted">No jobs in this browser yet.</li></ul>
+    <div class="card-head"><div class="ico">&#8635;</div><h3>Recent jobs</h3></div>
+    <ul class="jobs" id="jobs"><li style="color:var(--muted)">No jobs in this browser yet.</li></ul>
   </section>
 </main>
 
-<footer>KEPROBA &copy; Research &amp; Innovation &middot; All rights reserved</footer>
+<footer>KEPROBA &copy; Research &amp; Innovation (RI) &middot; All rights reserved</footer>
 
 <script>
-  const input = document.getElementById("files");
-  const drop = document.getElementById("drop");
-  const list = document.getElementById("fileList");
-  const statusEl = document.getElementById("status");
-  const links = document.getElementById("links");
-  const go = document.getElementById("go");
+  const $ = id => document.getElementById(id);
+  const input = $("files"), drop = $("drop"), logEl = $("log"), links = $("links"), go = $("go");
+
+  function log(msg, cls) {
+    const line = document.createElement("div");
+    if (cls) line.className = cls;
+    line.textContent = msg;
+    logEl.appendChild(line);
+  }
+  function resetLog() { logEl.innerHTML = ""; links.innerHTML = ""; }
 
   document.querySelectorAll(".type input").forEach(r => {
     r.onchange = () => {
       document.querySelectorAll(".type").forEach(t => t.classList.remove("active"));
-      r.parentElement.classList.add("active");
+      r.closest(".type").classList.add("active");
     };
   });
 
   drop.onclick = () => input.click();
   drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
   drop.ondragleave = () => drop.classList.remove("over");
-  drop.ondrop = e => {
-    e.preventDefault(); drop.classList.remove("over");
-    input.files = e.dataTransfer.files; showFiles();
-  };
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); input.files = e.dataTransfer.files; showFiles(); };
   input.onchange = showFiles;
-
   function showFiles() {
-    list.innerHTML = "";
-    for (const f of input.files) {
-      const li = document.createElement("li");
-      li.textContent = f.name;
-      list.appendChild(li);
-    }
+    $("fileList").innerHTML = "";
+    for (const f of input.files) { const li = document.createElement("li"); li.textContent = f.name; $("fileList").appendChild(li); }
   }
 
-  function loadJobs() {
-    let jobs = [];
-    try { jobs = JSON.parse(localStorage.getItem("jobs") || "[]"); } catch (e) {}
-    const ul = document.getElementById("jobs");
-    if (!jobs.length) return;
-    ul.innerHTML = "";
+  const notReady = name => () => { resetLog(); log(name + " is not available in this version yet. Upload your own .xlsx or .csv files instead.", "bad"); };
+  $("loadSample").onclick = notReady("Sample datasets");
+  $("dlSample").onclick = notReady("Sample downloads");
+  $("fetchBtn").onclick = notReady("Open data fetch");
+
+  function readJobs() { try { return JSON.parse(localStorage.getItem("jobs") || "[]"); } catch (e) { return []; } }
+  function renderJobs() {
+    const jobs = readJobs(); if (!jobs.length) return;
+    $("jobs").innerHTML = "";
     for (const j of jobs) {
       const li = document.createElement("li");
-      li.innerHTML = `<span>${j.time} &middot; ${j.type}</span><span><a href="${j.docx}">Word</a> &middot; <a href="${j.xlsx}">Excel</a></span>`;
-      ul.appendChild(li);
+      li.innerHTML = '<span>' + j.time + ' &middot; ' + j.type + '</span><span><a href="' + j.docx + '">Word</a> &middot; <a href="' + j.xlsx + '">Excel</a></span>';
+      $("jobs").appendChild(li);
     }
   }
   function saveJob(job) {
-    try {
-      const jobs = JSON.parse(localStorage.getItem("jobs") || "[]");
-      jobs.unshift(job);
-      localStorage.setItem("jobs", JSON.stringify(jobs.slice(0, 8)));
-    } catch (e) {}
-    loadJobs();
+    try { const jobs = readJobs(); jobs.unshift(job); localStorage.setItem("jobs", JSON.stringify(jobs.slice(0, 8))); } catch (e) {}
+    renderJobs();
   }
-  loadJobs();
+  renderJobs();
 
   go.onclick = async () => {
-    links.innerHTML = ""; statusEl.className = "";
-    if (!input.files.length) { statusEl.className = "err"; statusEl.textContent = "Choose files first."; return; }
+    resetLog();
+    if (!input.files.length) { log("Choose files in step 2 first.", "bad"); return; }
+    const type = document.querySelector("input[name=analysis]:checked").value;
     const fd = new FormData();
     for (const f of input.files) fd.append("files", f);
-    const type = document.querySelector("input[name=analysis]:checked").value;
-    fd.append("top_n", document.getElementById("topn").value);
-    go.disabled = true; statusEl.textContent = "Generating...";
+    fd.append("top_n", $("topn").value);
+    go.disabled = true;
+    log("Uploading " + input.files.length + " file(s) for " + type + "...");
     try {
       const res = await fetch("/generate", { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Something went wrong");
-      statusEl.textContent = "Done. Your report is ready.";
-      links.innerHTML = `<a class="btn alt" href="${data.docx}">Download Word Report</a><a class="btn alt" href="${data.xlsx}">Download Excel Tables</a>`;
-      saveJob({ time: new Date().toLocaleString(), type, docx: data.docx, xlsx: data.xlsx });
-    } catch (e) {
-      statusEl.className = "err"; statusEl.textContent = "Error: " + e.message;
-    }
+      log("Tables built.", "ok"); log("Word report ready.", "ok"); log("Excel tables ready.", "ok");
+      links.innerHTML = '<a class="btn" href="' + data.docx + '">Download Word Report (.docx)</a><a class="btn" href="' + data.xlsx + '">Download Table (.xlsx)</a>';
+      saveJob({ time: new Date().toLocaleString(), type: type, docx: data.docx, xlsx: data.xlsx });
+    } catch (e) { log("Error: " + e.message, "bad"); }
     go.disabled = false;
   };
 </script>
